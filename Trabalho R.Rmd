@@ -1,0 +1,361 @@
+---
+title: "Duração de mandato nas Secretarias Estaduais de Saúde"
+author: "Alexandra Emanuela Novais Silva"
+date: "2024-09-10"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+subtitle: uma análise da permanência no cargo e do gênero nas regiões brasileiras
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, echo = FALSE)
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("lubridate")
+install.packages("ggplot2")
+install.packages("tidyr")
+install.packages("knitr")
+install.packages("broom")
+install.packages("rmarkdown")
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+library(readxl)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(broom)
+library(ggplot2)
+```
+
+# Gênero e cargos públicos 
+
+O tema aqui abordado é o gênero e sua relação com cargos de liderança na organização pública burocrática. Vários são os estudos que indicam que mulheres são minorias nessas posições, apesar de serem o maior grupo a comporem as áreas de cuidado. Mas quando são escolhidas para ocuparem a cadeira elas conseguem se manter no cargo? Nosso objetivo aqui é apresentar se existe relação entre ser mulher e se manter nessa posição de Secretária Estadual de Saúde.
+
+```{r echo=FALSE}
+knitr::include_graphics("https://s2-valor-investe.glbimg.com/wlX92am1H2S9XEfPPIC1SYfhsZk=/0x0:2121x1414/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_f035dd6fd91c438fa04ab718d608bbaa/internal_photos/bs/2019/4/o/6rUFPjRvGVqixMJtJOAQ/genero.jpg")
+```
+
+# Dificuldades que envolvem a subrepresentação
+
+
+Esse cargo específico faz parte da burocracia de alto escalão subnacional. É também uma função comissionada, ou seja, indicada pelos governadores estaduais. Cada estado possui um secretario estadual de saúde. Para diversos pesquisadores, os cargos de alto escalão no setor público são ainda mais difíceis de alcançar no Brasil pelas mulheres. Isso pois, não é necessário passar por um exame ou prova, como um concurso público, para avaliar capacidades técnicas. Além disso, mesmo quando alcançam altas posições em ambientes corporativos públicos, mulheres enfrentam diversos desafios, como o cansaço, referente a serem as que executam mais horas de trabalhos domésticos, a ausência de equidade na remuneração, e o desafio de serem sub-representadas dentro das próprias instituições.
+
+
+```{r}
+knitr::include_graphics("https://img.freepik.com/fotos-gratis/mulher-de-tiro-medio-trabalhando-como-economista_52683-107660.jpg")
+```
+
+
+# Metodologia 
+ 
+Aqui, analisamos dados de secretarias estaduais de saúde brasileiras durante os anos de 2006 e 2016. Para a construção da nossa base de dados Coletamos informações de sites oficiais de todos os estados e Distrito Federal e boletins informativos do Conselho Nacional de Secretarios Estaduais de Saúde. Após a coleta, apresentamos a duração dos mandatos nas secretarias e como gênero é apontado em cada região. Por fim, para que possamos realizar a verificação da relação entre as duas condições, utilizamos o teste estatístico de regressão linear multivariada. A seguir apresentaremos os resultados obtidos.  
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("lubridate")
+install.packages("ggplot2")
+install.packages("knitr")
+install.packages("rmarkdown")
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+library(readxl)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+
+file.choose()
+Secretarios_de_saude_CO <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx")
+
+Secretarios_de_saúde_Norte <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx", sheet = "Norte")
+
+Secretarios_de_saúde_Nordeste <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx",sheet = "Nordeste")
+
+Secretarios_de_saúde_Sudeste <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx",sheet = "Sudeste")
+
+Secretarios_de_saúde_Sul <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx", sheet = "Sul")
+
+
+```
+
+
+
+```{r include=FALSE}
+Secretarios_de_saude_CO %>% 
+select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
+mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
+
+
+
+```
+
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Norte %>% 
+  select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
+  mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
+
+
+
+```
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Nordeste <- Secretarios_de_saúde_Nordeste %>%
+  mutate(Mandato_Inicio = as.numeric(Mandato_Inicio))
+str(Secretarios_de_saúde_Nordeste)
+Secretarios_de_saúde_Nordeste%>% 
+  select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
+  mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
+
+
+
+```
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Sudeste  <- Secretarios_de_saúde_Sudeste %>% 
+  mutate(Mandato_Inicio = as.numeric(Mandato_Inicio))
+str(Secretarios_de_saúde_Sudeste)
+Secretarios_de_saúde_Sudeste%>% 
+  select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
+  mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
+```
+
+
+```{r include=FALSE}
+
+Secretarios_de_saúde_Sul  <- Secretarios_de_saúde_Sul %>% 
+  mutate(Mandato_Inicio = as.numeric(Mandato_Inicio))
+str(Secretarios_de_saúde_Sul)
+Secretarios_de_saúde_Sul %>% 
+  select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
+  mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
+```
+
+
+
+```{r include=FALSE}
+ Secretarios_de_saude_CO$duracao_mandato <- 
+   (Secretarios_de_saude_CO$Mandato_Final - 
+      Secretarios_de_saude_CO$Mandato_Inicio) + 1
+
+
+```
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Norte$duracao_mandato <- 
+   (Secretarios_de_saúde_Norte$Mandato_Final - 
+      Secretarios_de_saúde_Norte$Mandato_Inicio) + 1
+
+
+```
+
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Nordeste$duracao_mandato <- 
+   (Secretarios_de_saúde_Nordeste$Mandato_Final - 
+      Secretarios_de_saúde_Nordeste$Mandato_Inicio) + 1
+
+
+```
+
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Sudeste$duracao_mandato <- 
+   (Secretarios_de_saúde_Sudeste$Mandato_Final - 
+      Secretarios_de_saúde_Sudeste$Mandato_Inicio) + 1
+
+
+```
+
+
+
+```{r include=FALSE}
+Secretarios_de_saúde_Sul$duracao_mandato <- 
+   (Secretarios_de_saúde_Sul$Mandato_Final - 
+      Secretarios_de_saúde_Sul$Mandato_Inicio) + 1
+
+```
+
+
+# Duração dos mandatos por Gênero em cada região
+
+--- 
+
+## Centro-Oeste
+
+```{r echo=FALSE}
+ggplot (Secretarios_de_saude_CO, aes(x = duracao_mandato, fill = Gênero)) +
+   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+   scale_x_continuous(breaks = 1:9)+
+   scale_fill_manual(values = c("hotpink", "orange")) +
+   scale_y_continuous(breaks = seq(1, max(table(Secretarios_de_saude_CO$duracao_mandato)), by = 1)) +
+   labs(title = "Distribuição da Duração dos Mandatos por Gênero - Centro_Oeste",
+        x = "Duração do Mandato (anos)",
+        y = "Frequência (Secretários)") +
+   theme(title = element_text(color = "darkblue"))
+
+
+```
+
+
+---
+
+## Nordeste
+
+```{r echo=FALSE}
+ ggplot(Secretarios_de_saúde_Nordeste, aes(x = duracao_mandato, fill = Gênero)) +
+   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+   scale_x_continuous(breaks = 1:10)+
+   scale_fill_manual(values = c("hotpink", "orange")) +
+   scale_y_continuous(breaks = seq(1, max(table(Secretarios_de_saúde_Nordeste$duracao_mandato)), by = 1)) +
+   labs(title = "Distribuição da Duração dos Mandatos por Gênero - Nordeste",
+        x = "Duração do Mandato (anos)",
+        y = "Frequência (Secretários)")+
+   theme(title = element_text(color = "darkblue"))
+```
+
+---
+
+## Norte
+
+```{r echo=FALSE}
+
+  ggplot(Secretarios_de_saúde_Norte, aes(x = duracao_mandato, fill = Gênero)) +
+   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+   scale_x_continuous(breaks = 1:7)+
+   scale_fill_manual(values = c("hotpink", "orange")) +
+   scale_y_continuous(breaks = seq(1, max(table(Secretarios_de_saúde_Norte$duracao_mandato)), by = 1)) +
+   labs(title = "Distribuição da Duração dos Mandatos por Gênero - Norte",
+        x = "Duração do Mandato (anos)",
+        y = "Frequência (Secretários)")+
+   theme(title = element_text(color = "darkblue"))
+```
+
+
+---
+
+## Sudeste
+
+
+```{r echo=FALSE}
+ggplot(Secretarios_de_saúde_Sudeste, aes(x = duracao_mandato, fill = Gênero)) +
+   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+   scale_x_continuous(breaks = 1:7)+
+   scale_fill_manual(values = c("orange"))+
+   scale_y_continuous(breaks = seq(1, max(table(Secretarios_de_saúde_Sudeste$duracao_mandato)), by = 1)) +
+   labs(title = "Distribuição da Duração dos Mandatos por Gênero - Sudeste",
+        x = "Duração do Mandato (anos)",
+        y = "Frequência (Secretários)")+
+   theme(title = element_text(color = "darkblue"))
+```
+
+---
+
+## Sul
+
+```{r echo=FALSE}
+ggplot(Secretarios_de_saúde_Sul, aes(x = duracao_mandato, fill = Gênero)) +
+   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+   scale_x_continuous(breaks = 1:7)+
+   scale_fill_manual(values = c("hotpink", "orange")) +
+  scale_y_continuous(breaks = seq(1, max(table(Secretarios_de_saúde_Sul$duracao_mandato)), by = 1)) +
+   labs(title = "Distribuição da Duração dos Mandatos por Gênero - Sul",
+        x = "Duração do Mandato (anos)",
+        y = "Frequência (Secretários)")+
+   theme(title = element_text(color = "darkblue"))
+
+```
+ 
+```{r include=FALSE}
+file.choose()
+Secretarios_de_saude_CO <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalho/Lista 3/_Secretarios de saúde 2.xlsx")
+Secretarios_de_saude_Norte <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalho/Lista 3/_Secretarios de saúde 2.xlsx", sheet = "Norte")
+Secretarios_de_saude_Nordeste <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalho/Lista 3/_Secretarios de saúde 2.xlsx", sheet = "Nordeste")
+Secretarios_de_saude_Sudeste <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalho/Lista 3/_Secretarios de saúde 2.xlsx", sheet = "Sudeste")
+Secretarios_de_saude_Sul <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalho/Lista 3/_Secretarios de saúde 2.xlsx", sheet = "Sul")
+```
+
+ 
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+prepare_data <- function(df, nome_regiao) {df %>% 
+mutate( Mandato_Inicio = 
+as.numeric(Mandato_Inicio), Mandato_Final = as.numeric(Mandato_Final), 
+duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1 ) %>% 
+select(Gênero, duracao_mandato, PARTIDO) %>% mutate(nome_regiao)}
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+secretarios_combinados <- bind_rows(
+  prepare_data(Secretarios_de_saude_CO, "Centro-Oeste"),
+  prepare_data(Secretarios_de_saude_Norte, "Norte"),
+  prepare_data(Secretarios_de_saude_Nordeste, "Nordeste"),
+  prepare_data(Secretarios_de_saude_Sudeste, "Sudeste"),
+  prepare_data(Secretarios_de_saude_Sul,"Sul"))
+
+```
+
+
+```{r include=FALSE}
+ secretarios_combinados <- secretarios_combinados %>%
+  mutate(ideologia = case_when(
+    PARTIDO %in% c("DEM", "PMDB", "PP", "PSC", "PSD", "PSDB", "SD", "PFL") ~ "Direita",
+    PARTIDO %in% c("PCdoB", "PDT", "PSB", "PT", "PPS", "PROS") ~ "Esquerda"))
+
+print(secretarios_combinados)
+```
+# Modelo estatístico 
+
+---
+ 
+O modelo que usamos aqui foi a regressão linear, pois esta é utilizada para verificar se existe significancia estatística na correlação entre duas variáveis. Para exisir relação então entre os fatores, é necessário que o p valor seja menor que 0.05, isso porque o p valor representa a probabilidade que a variável não seja significativa. 
+
+# Regressão Linear 
+
+```{r echo=FALSE}
+modelo_lm <- lm(duracao_mandato ~ Gênero + ideologia, data = secretarios_combinados)
+
+summary(modelo_lm)
+
+```
+
+Desse modo, demostramos que o resutado da regressão os dados não são siginificantes estatisticamente para explicar nossa hipótese da influência de gênero na duração dos mandatos nas secretarias estaduais de saúde. 
+
+
+
+```{r include=FALSE}
+par(mfrow=c(2,2))
+plot(modelo_lm)
+par(mfrow=c(1,1))
+```
+
+# Conclusão 
+
+Apesar da literatura apresentar a dificuldade de mulheres ascenderem e permanecerem em cargos de liderança, nossos dados demonstraram que não existe relação entre as variáveis de análise, o gênero e a duração de mandato. Apesar de inserimos uma variável de idelogia como controle, nós não obtivemos significância estatística para a correlação. Isso pode indicar que nossa hipótese é rasa ou mesmo que existe a necessidade de indicarmos outras variáveis para que o teste seja mais robusto.  
