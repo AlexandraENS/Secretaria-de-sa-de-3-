@@ -56,7 +56,6 @@ knitr::include_graphics("https://s2-valor-investe.glbimg.com/wlX92am1H2S9XEfPPIC
 
 Esse cargo específico faz parte da burocracia de alto escalão subnacional. É também uma função comissionada, ou seja, indicada pelos governadores estaduais. Cada estado possui um secretario estadual de saúde. Para diversos pesquisadores, os cargos de alto escalão no setor público são ainda mais difíceis de alcançar no Brasil pelas mulheres. Isso pois, não é necessário passar por um exame ou prova, como um concurso público, para avaliar capacidades técnicas. Além disso, mesmo quando alcançam altas posições em ambientes corporativos públicos, mulheres enfrentam diversos desafios, como o cansaço, referente a serem as que executam mais horas de trabalhos domésticos, a ausência de equidade na remuneração, e o desafio de serem sub-representadas dentro das próprias instituições.
 
-#Incluímos outra imagem diretamente de um link da internet
 ```{r}
 #Incluímos outra imagem diretamente de um link da internet
 knitr::include_graphics("https://img.freepik.com/fotos-gratis/mulher-de-tiro-medio-trabalhando-como-economista_52683-107660.jpg")
@@ -87,10 +86,11 @@ Secretarios_de_saúde_Sul <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Tr
 
 ```
 
-#Essa fase é de inclusão e cáculo de duração de mandato como uma coluna no nosso dataframe, e para alguns casos foi preciso 
-#afirmar que dados referente a mandatos eram númericos. 
+
 
 ```{r include=FALSE}
+#Essa fase é de inclusão e cáculo de duração de mandato como uma coluna no nosso dataframe, e para alguns casos foi preciso 
+#afirmar que dados referente a mandatos eram númericos
 Secretarios_de_saude_CO %>% 
 select(Mandato_Inicio, Mandato_Final, Gênero) %>% 
 mutate(duracao_mandato = (Mandato_Final - Mandato_Inicio) + 1)
@@ -198,7 +198,7 @@ Secretarios_de_saúde_Sul$duracao_mandato <-
 --- 
 
 ## Centro-Oeste
-#esse códigos geram uma tabela com as variáveis de duração de mandato e gênero por região.
+#Nesses códigos são geradas tabelas com as variáveis de duração de mandato e gênero por região.
 ```{r echo=FALSE}
 ggplot (Secretarios_de_saude_CO, aes(x = duracao_mandato, fill = Gênero)) +
    geom_histogram(binwidth = 1, position = "dodge", color = "black") +
@@ -315,7 +315,7 @@ secretarios_combinados <- bind_rows(
 
 
 ```{r include=FALSE}
-#aqui definimos as ideologias dos partidos e também criamos uma coluna para ideologia
+#aqui definimos as ideologias dos partidos e também criamos uma coluna para ideologia e visualizamos o dataframe
  secretarios_combinados <- secretarios_combinados %>%
   mutate(ideologia = case_when(
     PARTIDO %in% c("DEM", "PMDB", "PP", "PSC", "PSD", "PSDB", "SD", "PFL") ~ "Direita",
@@ -332,7 +332,7 @@ O modelo que usamos aqui foi a regressão linear, pois esta é utilizada para ve
 # Regressão Linear 
 
 ```{r echo=FALSE}
-#A fórmula de regressão multivariada é rodada aqui com todas as variáveis de interesse
+#fórmula de regressão multivariada é rodada aqui com todas as variáveis de interesse
 modelo_lm <- lm(duracao_mandato ~ Gênero + ideologia, data = secretarios_combinados)
 
 summary(modelo_lm)
