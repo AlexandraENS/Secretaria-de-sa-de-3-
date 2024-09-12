@@ -19,7 +19,7 @@ options(repos = c(CRAN = "https://cloud.r-project.org/"))
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
-
+#instalando pacotes necessários para rodar os dados
 install.packages("readxl")
 install.packages("dplyr")
 install.packages("lubridate")
@@ -30,7 +30,9 @@ install.packages("broom")
 install.packages("rmarkdown")
 ```
 
+
 ```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+#chamando os pacotes
 library(readxl)
 library(dplyr)
 library(lubridate)
@@ -43,7 +45,9 @@ library(ggplot2)
 
 O tema aqui abordado é o gênero e sua relação com cargos de liderança na organização pública burocrática. Vários são os estudos que indicam que mulheres são minorias nessas posições, apesar de serem o maior grupo a comporem as áreas de cuidado. Mas quando são escolhidas para ocuparem a cadeira elas conseguem se manter no cargo? Nosso objetivo aqui é apresentar se existe relação entre ser mulher e se manter nessa posição de Secretária Estadual de Saúde.
 
+
 ```{r echo=FALSE}
+#aqui incluímos uma imagem diretamente de um link da internet
 knitr::include_graphics("https://s2-valor-investe.glbimg.com/wlX92am1H2S9XEfPPIC1SYfhsZk=/0x0:2121x1414/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_f035dd6fd91c438fa04ab718d608bbaa/internal_photos/bs/2019/4/o/6rUFPjRvGVqixMJtJOAQ/genero.jpg")
 ```
 
@@ -52,8 +56,9 @@ knitr::include_graphics("https://s2-valor-investe.glbimg.com/wlX92am1H2S9XEfPPIC
 
 Esse cargo específico faz parte da burocracia de alto escalão subnacional. É também uma função comissionada, ou seja, indicada pelos governadores estaduais. Cada estado possui um secretario estadual de saúde. Para diversos pesquisadores, os cargos de alto escalão no setor público são ainda mais difíceis de alcançar no Brasil pelas mulheres. Isso pois, não é necessário passar por um exame ou prova, como um concurso público, para avaliar capacidades técnicas. Além disso, mesmo quando alcançam altas posições em ambientes corporativos públicos, mulheres enfrentam diversos desafios, como o cansaço, referente a serem as que executam mais horas de trabalhos domésticos, a ausência de equidade na remuneração, e o desafio de serem sub-representadas dentro das próprias instituições.
 
-
+#Incluímos outra imagem diretamente de um link da internet
 ```{r}
+#Incluímos outra imagem diretamente de um link da internet
 knitr::include_graphics("https://img.freepik.com/fotos-gratis/mulher-de-tiro-medio-trabalhando-como-economista_52683-107660.jpg")
 ```
 
@@ -63,28 +68,11 @@ knitr::include_graphics("https://img.freepik.com/fotos-gratis/mulher-de-tiro-med
 Aqui, analisamos dados de secretarias estaduais de saúde brasileiras durante os anos de 2006 e 2016. Para a construção da nossa base de dados Coletamos informações de sites oficiais de todos os estados e Distrito Federal e boletins informativos do Conselho Nacional de Secretarios Estaduais de Saúde. Após a coleta, apresentamos a duração dos mandatos nas secretarias e como gênero é apontado em cada região. Por fim, para que possamos realizar a verificação da relação entre as duas condições, utilizamos o teste estatístico de regressão linear multivariada. A seguir apresentaremos os resultados obtidos.  
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
 
-install.packages("readxl")
-install.packages("dplyr")
-install.packages("lubridate")
-install.packages("ggplot2")
-install.packages("knitr")
-install.packages("rmarkdown")
-```
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
-library(readxl)
-library(dplyr)
-library(lubridate)
-library(ggplot2)
-
-```
-
-
-```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
-
+#Nessa fase chamamos os arquivos que iremos utilizar que está na pasta lista 3 do onedrive do computador. 
 file.choose()
 Secretarios_de_saude_CO <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Trabalho\\Lista 3\\_Secretarios de saúde 2.xlsx")
 
@@ -99,7 +87,8 @@ Secretarios_de_saúde_Sul <- read_excel("C:\\Users\\Aleno\\OneDrive\\Área de Tr
 
 ```
 
-
+#Essa fase é de inclusão e cáculo de duração de mandato como uma coluna no nosso dataframe, e para alguns casos foi preciso 
+#afirmar que dados referente a mandatos eram númericos. 
 
 ```{r include=FALSE}
 Secretarios_de_saude_CO %>% 
@@ -209,7 +198,7 @@ Secretarios_de_saúde_Sul$duracao_mandato <-
 --- 
 
 ## Centro-Oeste
-
+#esse códigos geram uma tabela com as variáveis de duração de mandato e gênero por região.
 ```{r echo=FALSE}
 ggplot (Secretarios_de_saude_CO, aes(x = duracao_mandato, fill = Gênero)) +
    geom_histogram(binwidth = 1, position = "dodge", color = "black") +
@@ -304,6 +293,7 @@ Secretarios_de_saude_Sul <- read_excel("C:/Users/Aleno/OneDrive/Área de Trabalh
 
  
 ```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+#aqui criamos uma função chamada prepare_data para adicionar mais uma coluna com nome da região e adicionamos a variável partido na análise
 prepare_data <- function(df, nome_regiao) {df %>% 
 mutate( Mandato_Inicio = 
 as.numeric(Mandato_Inicio), Mandato_Final = as.numeric(Mandato_Final), 
@@ -313,6 +303,7 @@ select(Gênero, duracao_mandato, PARTIDO) %>% mutate(nome_regiao)}
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+#combinamos os dados referentes a todas as regiões em uma única página do dataframe
 secretarios_combinados <- bind_rows(
   prepare_data(Secretarios_de_saude_CO, "Centro-Oeste"),
   prepare_data(Secretarios_de_saude_Norte, "Norte"),
@@ -324,6 +315,7 @@ secretarios_combinados <- bind_rows(
 
 
 ```{r include=FALSE}
+#aqui definimos as ideologias dos partidos e também criamos uma coluna para ideologia
  secretarios_combinados <- secretarios_combinados %>%
   mutate(ideologia = case_when(
     PARTIDO %in% c("DEM", "PMDB", "PP", "PSC", "PSD", "PSDB", "SD", "PFL") ~ "Direita",
@@ -340,6 +332,7 @@ O modelo que usamos aqui foi a regressão linear, pois esta é utilizada para ve
 # Regressão Linear 
 
 ```{r echo=FALSE}
+#A fórmula de regressão multivariada é rodada aqui com todas as variáveis de interesse
 modelo_lm <- lm(duracao_mandato ~ Gênero + ideologia, data = secretarios_combinados)
 
 summary(modelo_lm)
@@ -349,12 +342,6 @@ summary(modelo_lm)
 Desse modo, demostramos que o resutado da regressão os dados não são siginificantes estatisticamente para explicar nossa hipótese da influência de gênero na duração dos mandatos nas secretarias estaduais de saúde. 
 
 
-
-```{r include=FALSE}
-par(mfrow=c(2,2))
-plot(modelo_lm)
-par(mfrow=c(1,1))
-```
 
 # Conclusão 
 
